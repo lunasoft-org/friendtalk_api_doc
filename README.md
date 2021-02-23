@@ -10,6 +10,7 @@
 
 | 일시       | 변경 내역                                                                                                                                                                                                                |
 | ---------- | -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 2021.2.18  | `발송 API` 수정<br/>- ad_flag 추가<br/>- cate_cd 설명 수정                                                                                                                                                                |
 | 2021.2.5   | `발송 API` 수정<br/>- message_group_id 추가<br/>- message_id 추가<br/>`WebHook` 추가                                                                                                                                      |
 | 2021.1.    | 친구톡 API 초안 작성                                                                                                                                                                                                     |
 
@@ -156,6 +157,7 @@ API는 아래와 같이 나뉩니다.
       "app_user_id": "text",
       "message_id": "text",
       "message": "text",
+      "ad_flag": "text",
       "wide": "text",
       "attachment": {
         "button": [
@@ -179,13 +181,14 @@ API는 아래와 같이 나뉩니다.
 | ---------------------------- | ----------- | ------ | ------------------------------------------------------------------------------------------ | ------------------------------------ |
 | member_id                    | text(50)    | Y      | 고객 ID (파트너 ID)                                                                         | lunasoft                             |
 | api_key                      | text(50)    | Y      | 발급받은 API 키                                                                             |                                      |
-| cate_cd                      | number      | N      | 카테고리 코드 (1 : Datarize)                                                                | 1                                     |
+| cate_cd                      | number      | N      | 카테고리 코드 (0: 일반 친구톡, 1: 데이타라이즈 도넛, 2: 데이타라이즈 스마트메시지)<br/>기본값 0        | 0                                    |
 | message_group_id             | text(50)    | N      | 메세지에 대한 업체별 그룹 아이디 (*** `WebHook` 에서 전달 받음)                                  | message_group_id_1                    |
 | messages[]                   | array(1000) | Y      | 메시지 목록. 최대 1,000개                                                                    |                                      |
 | messages[].<br/>phone_number | text(16)    | -      | 사용자 전화번호 (*** phone_number 혹은 app_user_id 둘 중 하나는 반드시 있어야 하며, phone_number와 app_user_id의 정보가 동시에 요청된 경우 phone_number로만 발송) | 01012345678 |
 | messages[].<br/>app_user_id  | text        | -      | 앱 유저 아이디                                                                              | 12345                                |
 | messages[].<br/>message_id   | text(50)    | -      | 메세지에 대한 업체별 유니크 아이디 (*** `WebHook` 에서 필수값)                                   | message_id_1                         |
 | messages[].<br/>message      | text(1000)  | Y      | 사용자에게 전달될 메시지<br/>(공백 포함 1,000자 제한)                                           |                                      |
+| messages[].<br/>ad_flag      | text(1)     | N      | 광고성 메시지 표기 여부 (Y, N)<br/>기본값 Y                                                   | Y                                    |
 | messages[].<br/>wide         | text(1)     | Y      | 와이드 이미지 사용 여부 (Y, N)<br/>텍스트만 보낼 경우 N                                         | N                                    |
 | messages[].<br/>attachment   | object      | N      | 메시지 첨부 내용 (버튼 + 이미지)                                                              |                                      |
 | attachment.<br/>button[]     | array(5)    | N      | 버튼 목록                                                                                  |                                      |
@@ -260,6 +263,7 @@ API는 아래와 같이 나뉩니다.
       "phone_number": "01012341234",
       "message_id": "message_id_text1",
       "message": "친구톡 발송 (텍스트) - TEST",
+      "ad_flag": "Y",
       "wide": "N",
       "attachment": {
         "button": [
@@ -300,6 +304,7 @@ API는 아래와 같이 나뉩니다.
       "phone_number": "01012341234",
       "message_id": "message_id_text2",
       "message": "친구톡 발송 (텍스트) - TEST",
+      "ad_flag": "Y",
       "wide": "N",
       "attachment": {
         "button": [
@@ -331,6 +336,7 @@ API는 아래와 같이 나뉩니다.
       "phone_number": "01012341234",
       "message_id": "message_id_image1",
       "message": "친구톡 발송 (이미지) - TEST",
+      "ad_flag": "Y",
       "wide": "N",
       "attachment": {
         "button": [
@@ -375,6 +381,7 @@ API는 아래와 같이 나뉩니다.
       "phone_number": "01012341234",
       "message_id": "message_id_image2",
       "message": "친구톡 발송 (이미지) - TEST",
+      "ad_flag": "Y",
       "wide": "N",
       "attachment": {
         "button": [
@@ -413,6 +420,7 @@ API는 아래와 같이 나뉩니다.
       "phone_number": "01012341234",
       "message_id": "message_id_wideimage1",
       "message": "친구톡 발송 (WIDE 이미지) - TEST",
+      "ad_flag": "Y",
       "wide": "Y",
       "attachment": {
         "button": [
@@ -433,6 +441,7 @@ API는 아래와 같이 나뉩니다.
       "phone_number": "01012341234",
       "message_id": "message_id_wideimage2",
       "message": "친구톡 발송 (WIDE 이미지) - TEST",
+      "ad_flag": "Y",
       "wide": "Y",
       "attachment": {
         "button": [
