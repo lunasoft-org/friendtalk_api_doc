@@ -10,6 +10,7 @@
 
 | 일시       | 변경 내역                                                                                                                                                                                                                |
 | ---------- | -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 2022.12.12  | `이미지 API`,  `WIDE 이미지 API` 수정<br/>- 이미지 API 제한 사이즈 : 가로 500px 이상, 가로:세로 비율 2:1 이상 3:4 이하<br/>- 이미지 API Endpoint : /api/Upload/Image -> /api/v2/Upload/Image<br/> -WIDE 이미지 API Endpoint : /api/Upload/WideImage -> /api/v2/Upload/WideImage                                                                                                                                                                |
 | 2022.6.8  | `이미지 API` 수정<br/>- 이미지 타입 수정<br/> byte[] -> binary                                                                                                                                                                |
 | 2021.2.23  | `발송 API` 수정<br/>- ad_flag 추가<br/>- cate_cd 설명 수정                                                                                                                                                                |
 | 2021.2.5   | `발송 API` 수정<br/>- message_group_id 추가<br/>- message_id 추가<br/>`WebHook` 추가                                                                                                                                      |
@@ -74,8 +75,7 @@ API는 아래와 같이 나뉩니다.
 `이미지 API`는 메시지 발송 API에 사용될 이미지를 업로드 합니다.
 
 - 이미지 API
-  - 권장 사이즈 : 720px * 720px
-  - 제한 사이즈 : 가로 500px 미만 또는 가로:세로 비율이 2:1 미만 또는 3:4 초과시 업로드 불가
+  - 제한 사이즈 : 가로 500px 이상, 가로:세로 비율 2:1 이상 3:4 이하
   - 파일형식 및 크기 : jpg, png / 최대 500KB
 - WIDE 이미지 API
   - 제한 사이즈 : 800px * 600px
@@ -84,8 +84,8 @@ API는 아래와 같이 나뉩니다.
 #### Request
 
 - path : 
-  - 이미지 API : /api/Upload/Image
-  - WIDE 이미지 API : /api/Upload/WideImage
+  - 이미지 API : /api/v2/Upload/Image
+  - WIDE 이미지 API : /api/v2/Upload/WideImage
 - method : `POST`
 - header :
   - Content-Type : multipart/form-data
