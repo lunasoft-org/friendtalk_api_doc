@@ -10,6 +10,9 @@
 
 | 일시       | 변경 내역                                                                                                                                                                                                                |
 | ---------- | -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 2023.3.30  | `쿠폰 강조 버튼` 추가 **([쿠폰 강조 버튼 상세](#쿠폰))** |
+| 2023.3.30  | `발송 API` 타입 추가<br/> - 와이드 아이템 리스트 말풍선 타입(messages[].attachment.item)<br/> - 캐러셀 말풍선 타입(messages[].carousel)<br/>`발송 API` 수정<br/> - Endpoint : /api/FriendTalk -> /api/v3/FriendTalk<br/>(기존 메시지 타입(텍스트, 이미지, 와이드 말풍선)의 경우 변경 전 Endpoint로도 발송 가능)<br/> - 와이드 이미지 사용 여부(messages[].wide) 삭제<br/> - 메시지 타입(messages[].message_type) 추가<br/> 0: 텍스트 타입, 1: 이미지 타입, 2: 와이드 말풍선 타입, 3: 와이드 아이템 리스트 말풍선 타입, 4: 캐러셀 말풍선 타입                                                                                |
+| 2023.3.30  | `업로드 API` 추가<br/> - 친구톡 와이드 아이템 리스트 이미지 업로드 API<br/>(Endpoint : /api/v2/Upload/WideItemList)<br/> - 친구톡 캐러셀 이미지 업로드 API<br/>(Endpoint : /api/v2/Upload/Carousel)                                                                                  |
 | 2022.12.12  | `이미지 API`,  `WIDE 이미지 API` 수정<br/>- 이미지 API 제한 사이즈 : 가로 500px 이상, 가로:세로 비율 2:1 이상 3:4 이하<br/>- 이미지 API Endpoint : /api/Upload/Image -> /api/v2/Upload/Image<br/> - WIDE 이미지 API Endpoint : /api/Upload/WideImage -> /api/v2/Upload/WideImage                                                                                                                                                                |
 | 2022.6.8  | `이미지 API` 수정<br/>- 이미지 타입 수정<br/> byte[] -> binary                                                                                                                                                                |
 | 2021.2.23  | `발송 API` 수정<br/>- ad_flag 추가<br/>- cate_cd 설명 수정                                                                                                                                                                |
@@ -65,27 +68,21 @@
 
 API는 아래와 같이 나뉩니다.
 
-- [이미지 API](#31-이미지-API)
+- [업로드 API](#31-업로드-API)
 - [발송 API](#32-발송-API)
 
 ## 3. API 
 
-### 3.1 이미지 API
+### 3.1 업로드 API
 
-`이미지 API`는 메시지 발송 API에 사용될 이미지를 업로드 합니다.
+`업로드 API`는 메시지 발송 API에 사용될 이미지를 업로드 합니다.
 
-- 이미지 API
-  - 제한 사이즈 : 가로 500px 이상, 가로:세로 비율 2:1 이상 3:4 이하
-  - 파일형식 및 크기 : jpg, png / 최대 500KB
-- WIDE 이미지 API
-  - 제한 사이즈 : 800px * 600px
-  - 파일형식 및 크기 : jpg, png / 최대 2MB
+#### 3.1.1 친구톡 이미지 업로드 API
+- 제한 사이즈 : 가로 500px 이상, 가로:세로 비율 2:1 이상 3:4 이하
+- 파일형식 및 크기 : jpg, png / 최대 500KB
 
-#### Request
-
-- path : 
-  - 이미지 API : /api/v2/Upload/Image
-  - WIDE 이미지 API : /api/v2/Upload/WideImage
+[Request]
+- path : /api/v2/Upload/Image
 - method : `POST`
 - header :
   - Content-Type : multipart/form-data
@@ -97,18 +94,58 @@ API는 아래와 같이 나뉩니다.
 | api_key        | text(50)    | Y    | 발급받은 API키             | abcdefghijklmnopqrstuvwxyz               |
 | image          | binary      | Y    | 이미지 파일 스트림          |                                          |
 
-#### Response
 
+[Response]
 - body :
 
 ```json
--- 이미지 업로드 성공시
+-- 이미지 업로드 성공 시
 {
   "code": "0000",
   "iamge_url": "http://mud-kage.kakao.com/dn/c0CM0k/btqQXBQxAJh/bkykLs2M2pOuDRQkL3byn0/img_l.jpg"
 }
 
--- 오류 발생시 
+-- 오류 발생 시 
+{
+  "code": "1099",
+  "message": "member_id은(는) 필수값입니다. / api_key은(는) 필수값입니다."
+}
+```
+
+| 키        | 타입 | 필수 | 설명                                          | 예제        |
+| --------- | ---- | ---- | ------------------------------------------- | ----------- |
+| image_url | text | N    | 업로드된 이미지 URL (업로드 성공 시 존재하는 값) |             |
+| code      | text | Y    | 결과 코드                                    | 0000        |
+| message   | text | N    | 오류 메시지 (오류 시 존재하는 값)               |             |
+
+#### 3.1.2 친구톡 와이드 이미지 업로드 API
+- 제한 사이즈 : 800px * 600px
+- 파일형식 및 크기 : jpg, png / 최대 2MB
+
+[Request]
+- path : /api/v2/Upload/WideImage
+- method : `POST`
+- header :
+  - Content-Type : multipart/form-data
+- form
+
+| 키             | 타입         | 필수 | 설명                       | 예제                                     |
+| -------------- | ----------- | ---- | ------------------------- | ---------------------------------------- |
+| member_id      | text(50)    | Y    | 고객 ID (파트너 ID)        | lunasoft                                 |
+| api_key        | text(50)    | Y    | 발급받은 API키             | abcdefghijklmnopqrstuvwxyz               |
+| image          | binary      | Y    | 이미지 파일 스트림          |                                          |
+
+[Response]
+- body :
+
+```json
+-- 이미지 업로드 성공 시
+{
+  "code": "0000",
+  "iamge_url": "http://mud-kage.kakao.com/dn/c0CM0k/btqQXBQxAJh/bkykLs2M2pOuDRQkL3byn0/img_l.jpg"
+}
+
+-- 오류 발생 시 
 {
   "code": "1099",
   "message": "member_id은(는) 필수값입니다. / api_key은(는) 필수값입니다."
@@ -122,15 +159,267 @@ API는 아래와 같이 나뉩니다.
 | message   | text | N    | 오류 메시지 (오류 시 존재하는 값)               |             |
 
 
+#### 3.1.3 친구톡 와이드 아이템 리스트 이미지 업로드 API
+- 제한 사이즈 : 가로 400px, 세로 400px ~ 가로 800px, 세로 400px
+- 파일형식 및 크기 : jpg, png / 최대 2MB
+- 최소 3개에서 최대 4개까지 업로드 가능
+
+[Request]
+- path : /api/v2/Upload/WideItemList
+- method : `POST`
+- header :
+  - Content-Type : multipart/form-data
+- form
+
+| 키             | 타입         | 필수 | 설명                       | 예제                                     |
+| -------------- | ----------- | ---- | ------------------------- | ---------------------------------------- |
+| member_id      | text(50)    | Y    | 고객 ID (파트너 ID)        | lunasoft                                 |
+| api_key        | text(50)    | Y    | 발급받은 API키             | abcdefghijklmnopqrstuvwxyz               |
+| image_1        | binary      | Y    | 1번 메인 이미지 파일 스트림  |                                          |
+| image_2        | binary      | Y    | 2번 이미지 파일 스트림      |                                          |
+| image_3        | binary      | Y    | 3번 이미지 파일 스트림      |                                          |
+| image_4        | binary      | N    | 4번 이미지 파일 스트림      |                                          |
+
+
+[Response]
+- body :
+
+```json
+-- 이미지 업로드 성공 시
+{
+  "code": "0000",
+  "images": [
+    {
+      "code": "0000",
+      "imageId": "image_1",
+      "imageUrl": "https://mud-kage.kakao.com/dn/dl1wHn/btr2FcL0QWW/kiZVsrxZRnIvKlIV4lD3Q0/img_l.jpg"
+    },
+    {
+      "code": "0000",
+      "imageId": "image_2",
+      "imageUrl": "https://mud-kage.kakao.com/dn/nTo0z/btr2Ff9D68H/82chYRky3BJTZDtKIB1tR0/img_l.jpg"
+    },
+    {
+      "code": "0000",
+      "imageId": "image_3",
+      "imageUrl": "https://mud-kage.kakao.com/dn/nTo0z/btr2Ff9D68H/82chYRky3BJTZDtKIB1tR0/img_l.jpg"
+    },
+    {
+      "code": "0000",
+      "imageId": "image_4",
+      "imageUrl": "https://mud-kage.kakao.com/dn/nTo0z/btr2Ff9D68H/82chYRky3BJTZDtKIB1tR0/img_l.jpg"
+    }
+  ]
+}
+
+-- 이미지 업로드 부분 성공 시
+{
+  "code": "0001",
+  "images": [
+    {
+      "code": "0000",
+      "imageId": "image_1",
+      "imageUrl": "https://mud-kage.kakao.com/dn/dl1wHn/btr2FcL0QWW/kiZVsrxZRnIvKlIV4lD3Q0/img_l.jpg"
+    },
+    {
+      "code": "0000",
+      "imageId": "image_2",
+      "imageUrl": "https://mud-kage.kakao.com/dn/nTo0z/btr2Ff9D68H/82chYRky3BJTZDtKIB1tR0/img_l.jpg"
+    },
+    {
+      "code": "0000",
+      "imageId": "image_3",
+      "imageUrl": "https://mud-kage.kakao.com/dn/nTo0z/btr2Ff9D68H/82chYRky3BJTZDtKIB1tR0/img_l.jpg"
+    },
+    {
+      "code": "1004",
+      "imageId": "image_4",
+      "message": "InvalidImageShapeException(가로는 최소 400px, 세로는 최소 400px 이상이어야 합니다)"
+    }
+  ]
+}
+
+-- 이미지 업로드 전체 실패 시
+{
+  "code": "1004",
+  "images": [
+    {
+      "code": "1004",
+      "imageId": "image_1",
+      "message": "InvalidImageShapeException(가로는 최소 400px, 세로는 최소 400px 이상이어야 합니다)"
+    },
+    {
+      "code": "1004",
+      "imageId": "image_2",
+      "message": "InvalidImageShapeException(가로는 최소 400px, 세로는 최소 400px 이상이어야 합니다)"
+    },
+    {
+      "code": "1004",
+      "imageId": "image_3",
+      "message": "InvalidImageShapeException(가로는 최소 400px, 세로는 최소 400px 이상이어야 합니다)"
+    },
+    {
+      "code": "1004",
+      "imageId": "image_4",
+      "message": "InvalidImageShapeException(가로는 최소 400px, 세로는 최소 400px 이상이어야 합니다)"
+    }
+  ]
+}
+
+-- 오류 발생 시 
+{
+  "code": "1099",
+  "message": "member_id은(는) 필수값입니다. / api_key은(는) 필수값입니다."
+}
+```
+
+| 키                     | 타입     | 필수  | 설명                                                      | 예제               |
+| ---------------------- | ------- | ---- | --------------------------------------------------------- | ----------------- |
+| code                   | text    | Y    | 결과 코드                                                  | 0000              |
+| message                | text    | N    | 오류 메시지 (오류 시 존재하는 값)                             |                   |
+| images[]               | array[] | N    |                                                           |                   |
+| images[].<br/>code     | text    | Y    | 이미지 파일별 결과 코드                                      | 0000              |
+| images[].<br/>message  | text    | N    | 이미지 파일별 오류 메시지 (오류 시 존재하는 값)                 |                    |
+| images[].<br/>imageId  | text    | Y    | 이미지 파일 ID                                              | image_1 ~ image_4 | 
+| images[].<br/>imageUrl | text    | N    | 이미지 파일별 업로드된 이미지 URL (업로드 성공 시 존재하는 값)    |                   |
+
+
+#### 3.1.4 친구톡 캐러셀 이미지 업로드 API
+- 제한 사이즈 : 가로 500px 이상, 가로:세로 비율 2:1 이상 3:4 이하
+- 파일형식 및 크기 : jpg, png / 최대 2MB
+- 최소 2개에서 최대 6개까지 업로드 가능
+
+[Request]
+- path : /api/v2/Upload/Carousel
+- method : `POST`
+- header :
+  - Content-Type : multipart/form-data
+- form
+
+| 키             | 타입         | 필수 | 설명                       | 예제                                     |
+| -------------- | ----------- | ---- | ------------------------- | ---------------------------------------- |
+| member_id      | text(50)    | Y    | 고객 ID (파트너 ID)        | lunasoft                                 |
+| api_key        | text(50)    | Y    | 발급받은 API키             | abcdefghijklmnopqrstuvwxyz               |
+| image_1        | binary      | Y    | 1번 이미지 파일 스트림      |                                          |
+| image_2        | binary      | Y    | 2번 이미지 파일 스트림      |                                          |
+| image_3        | binary      | N    | 3번 이미지 파일 스트림      |                                          |
+| image_4        | binary      | N    | 4번 이미지 파일 스트림      |                                          |
+| image_5        | binary      | N    | 5번 이미지 파일 스트림      |                                          |
+| image_6        | binary      | N    | 6번 이미지 파일 스트림      |                                          |
+
+[Response]
+- body :
+
+```json
+-- 이미지 업로드 성공 시
+{
+  "code": "0000",
+  "images": [
+    {
+      "code": "0000",
+      "imageId": "image_1",
+      "imageUrl": "https://mud-kage.kakao.com/dn/dl1wHn/btr2FcL0QWW/kiZVsrxZRnIvKlIV4lD3Q0/img_l.jpg"
+    },
+    {
+      "code": "0000",
+      "imageId": "image_2",
+      "imageUrl": "https://mud-kage.kakao.com/dn/nTo0z/btr2Ff9D68H/82chYRky3BJTZDtKIB1tR0/img_l.jpg"
+    },
+    {
+      "code": "0000",
+      "imageId": "image_3",
+      "imageUrl": "https://mud-kage.kakao.com/dn/nTo0z/btr2Ff9D68H/82chYRky3BJTZDtKIB1tR0/img_l.jpg"
+    },
+    {
+      "code": "0000",
+      "imageId": "image_4",
+      "imageUrl": "https://mud-kage.kakao.com/dn/nTo0z/btr2Ff9D68H/82chYRky3BJTZDtKIB1tR0/img_l.jpg"
+    }
+  ]
+}
+
+-- 이미지 업로드 부분 성공 시
+{
+  "code": "0001",
+  "images": [
+    {
+      "code": "0000",
+      "imageId": "image_1",
+      "imageUrl": "https://mud-kage.kakao.com/dn/dl1wHn/btr2FcL0QWW/kiZVsrxZRnIvKlIV4lD3Q0/img_l.jpg"
+    },
+    {
+      "code": "0000",
+      "imageId": "image_2",
+      "imageUrl": "https://mud-kage.kakao.com/dn/nTo0z/btr2Ff9D68H/82chYRky3BJTZDtKIB1tR0/img_l.jpg"
+    },
+    {
+      "code": "0000",
+      "imageId": "image_3",
+      "imageUrl": "https://mud-kage.kakao.com/dn/nTo0z/btr2Ff9D68H/82chYRky3BJTZDtKIB1tR0/img_l.jpg"
+    },
+    {
+      "code": "1004",
+      "imageId": "image_4",
+      "message": "InvalidImageShapeException(가로는 최소 400px, 세로는 최소 400px 이상이어야 합니다)"
+    }
+  ]
+}
+
+-- 이미지 업로드 전체 실패 시
+{
+  "code": "1004",
+  "images": [
+    {
+      "code": "1004",
+      "imageId": "image_1",
+      "message": "InvalidImageShapeException(가로는 최소 400px, 세로는 최소 400px 이상이어야 합니다)"
+    },
+    {
+      "code": "1004",
+      "imageId": "image_2",
+      "message": "InvalidImageShapeException(가로는 최소 400px, 세로는 최소 400px 이상이어야 합니다)"
+    },
+    {
+      "code": "1004",
+      "imageId": "image_3",
+      "message": "InvalidImageShapeException(가로는 최소 400px, 세로는 최소 400px 이상이어야 합니다)"
+    },
+    {
+      "code": "1004",
+      "imageId": "image_4",
+      "message": "InvalidImageShapeException(가로는 최소 400px, 세로는 최소 400px 이상이어야 합니다)"
+    }
+  ]
+}
+
+-- 오류 발생 시 
+{
+  "code": "1099",
+  "message": "member_id은(는) 필수값입니다. / api_key은(는) 필수값입니다."
+}
+```
+
+| 키                     | 타입     | 필수  | 설명                                                      | 예제               |
+| ---------------------- | ------- | ---- | --------------------------------------------------------- | ----------------- |
+| code                   | text    | Y    | 결과 코드                                                  | 0000              |
+| message                | text    | N    | 오류 메시지 (오류 시 존재하는 값)                             |                   |
+| images[]               | array[] | N    |                                                           |                   |
+| images[].<br/>code     | text    | Y    | 이미지 파일별 결과 코드                                      | 0000              |
+| images[].<br/>message  | text    | N    | 이미지 파일별 오류 메시지 (오류 시 존재하는 값)                 |                    |
+| images[].<br/>imageId  | text    | Y    | 이미지 파일 ID                                              | image_1 ~ image_6 | 
+| images[].<br/>imageUrl | text    | N    | 이미지 파일별 업로드된 이미지 URL (업로드 성공 시 존재하는 값)    |                   |
+
+
 \[결과 코드-Code\]
 
 | Code        | Message                                                                           |
 | ----------- | --------------------------------------------------------------------------------- |
 | 0000        | 성공                                                                              |
+| 0001        | 일부 성공                                                                         |
 | 1001        | 유효하지 않은 Request Form                                                         |
 | 1002        | 유효하지 않은 MemberId                                                             |
 | 1003        | 유효하지 않은 ApiKey                                                               |
-| 1004        | (ex) FailedToUploadImageException(InvalidImageSizeException- 발송 할 수 없는 이미지 크기입니다. <br/>: 가로:세로 비율은 2:1 이상 또는 3:4 이하여야 합니다 |
+| 1004        | 유효하지 않은 Image<br/>(ex) FailedToUploadImageException(InvalidImageSizeException- 발송 할 수 없는 이미지 크기입니다. <br/>: 가로:세로 비율은 2:1 이상 또는 3:4 이하여야 합니다 |
 | 1099        | 잘못된 요청 파라미터. ex : member_id은(는) 필수값입니다. / api_key은(는) 필수값입니다. |
 | 9999        | ServiceException (서비스에서 알 수 없는 문제가 발생)                                 |
 
@@ -138,9 +427,10 @@ API는 아래와 같이 나뉩니다.
 
 `발송 API`는 친구를 맺은 이용자 대상으로 고객사의 회원 전화번호 기반으로 광고성 메시지를 전송할 수 있습니다.
 
+
 #### Request
 
-- path : /api/FriendTalk
+- path : /api/v3/FriendTalk
 - method : `POST`
 - header :
   - Content-Type : application/json
@@ -159,20 +449,73 @@ API는 아래와 같이 나뉩니다.
       "message_id": "text",
       "message": "text",
       "ad_flag": "text",
-      "wide": "text",
+      "message_type": number,      
       "attachment": {
         "button": [
           {
             "name": "text",
             "type": "text",
             "url_mobile": "text",
-            "url_pc": "text"
+            "url_pc": "text",
+            "scheme_android": "text",
+            "scheme_ios": "text"
           }
         ],
         "image": {
           "img_url": "text",
           "img_link": "text"
+        },
+        "item": {
+          "list": [
+            {
+              "title": "text",
+              "img_url": "text",
+              "url_mobile": "text",
+              "url_pc": "text",
+              "scheme_android": "text",
+              "scheme_ios": "text"
+            }
+          ]
+        },
+        "coupon": {
+          "title": "text",
+          "description": "text",
+          "url_mobile": "text",
+          "url_pc": "text",
+          "scheme_android": "text",
+          "scheme_ios": "text"
         }
+      },
+      "header": "text",
+      "carousel": {
+        "list": [
+          {
+            "header": "text",
+            "message": "text",
+            "attachment": {
+              "button": [
+                {
+                  "name": "text",
+                  "type": "text",
+                  "url_mobile": "text",
+                  "url_pc": "text",
+                  "scheme_android": "text",
+                  "scheme_ios": "text"
+                }
+              ],
+              "image": {
+                "img_url": "text",
+                "img_link": "text"
+              }
+            }
+          }
+        ],
+        "tail": {
+          "url_mobile": "text",
+          "url_pc": "text",
+          "scheme_android": "text",
+          "scheme_ios": "text"
+        } 
       }
     }
   ]
@@ -190,11 +533,11 @@ API는 아래와 같이 나뉩니다.
 | messages[].<br/>message_id   | text(50)    | -      | 메세지에 대한 업체별 유니크 아이디 (*** `WebHook` 에서 필수값)                                   | message_id_1                         |
 | messages[].<br/>message      | text(1000)  | Y      | 사용자에게 전달될 메시지<br/>(공백 포함 1,000자 제한)                                           |                                      |
 | messages[].<br/>ad_flag      | text(1)     | N      | 광고성 메시지 표기 여부 (Y, N)<br/>기본값 Y                                                   | Y                                    |
-| messages[].<br/>wide         | text(1)     | Y      | 와이드 이미지 사용 여부 (Y, N)<br/>텍스트만 보낼 경우 N                                         | N                                    |
+| messages[].<br/>message_type  | number     | Y      | 메시지 타입 (0: 텍스트 타입, 1: 이미지 타입, 2: 와이드 말풍선 타입, 3: 와이드 아이템 리스트 말풍선 타입, 4: 캐러셀 말풍선 타입) | 0                          |
 | messages[].<br/>attachment   | object      | N      | 메시지 첨부 내용 (버튼 + 이미지)                                                              |                                      |
 | attachment.<br/>button[]     | array(5)    | N      | 버튼 목록                                                                                  |                                      |
 | button[].<br/>name           | text(28)    | Y      | 버튼 제목                                                                                  |                                      |
-| button[].<br/>type           | text(2)     | Y      | 버튼 타입                                                                                  | WL(웹링크)<br/>AL(앱링크)              |
+| button[].<br/>type           | text(2)     | Y      | 버튼 타입<br/>**([버튼 타입 별 속성](#버튼-타입-별-속성))**                                                                                  | WL(웹링크)<br/>AL(앱링크)              |
 | button[].<br/>url_mobile     | text        | -      | mobile 환경에서 버튼 클릭 시 이동할 URL                                                       | https://lunasoft.co.kr               |
 | button[].<br/>url_pc         | text        | -      | pc 환경에서 버튼 클릭 시 이동할 URL                                                           | https://lunasoft.co.kr               |
 | button[].<br/>scheme_android | text        | -      | mobile android 환경에서 버튼 클릭 시 실행 할<br/>application custom scheme                    | "scheme://xxx.xxx"                   |
@@ -202,6 +545,42 @@ API는 아래와 같이 나뉩니다.
 | attachment.<br/>image        | object      | N      | 노출할 이미지 정보 (*** 와이드 이미지 타입의 경우 [텍스트 메시지(76자 제한) + 링크 버튼(1개) + 이미지] 발송 가능) |                             |
 | image.<br/>img_url           | text        | Y      | 이미지 API를 통해 업로드된 결과 이미지 URL                                                     |                                       |
 | image.<br/>img_link          | text        | N      | 이미지 클릭시 이동할 URL. 미설정 시 카카오톡 내 이미지 뷰어 사용                                   |                                       |
+| attachment.<br/>item         | object      | N      | 와이드 아이템 리스트 정보 (아이템 리스트 설정하여 발송)                                          |                                       |
+| item.<br/>list[]             | array(4)    | Y      | 와이드 아이템 리스트 (최소 3개 ~ 최대 4개)                                                     |                                       |
+| list[].<br/>title             | text(25)    | Y      | 와이드 아이템 제목                                                                           |                                      |
+| list[].<br/>img_url           | text        | Y      | 와이드 아이템 리스트 이미지 API를 통해 업로드된 결과 이미지 URL                                   |                                       |
+| list[].<br/>scheme_android   | text        | N      | mobile android 환경에서 버튼 클릭 시 실행 할 application custom scheme                         | "scheme://xxx.xxx"                   |
+| list[].<br/>scheme_ios       | text        | N      | mobile ios 환경에서 버튼 클릭 시 실행 할 application custom scheme                             | "scheme://xxx.xxx"                   |
+| list[].<br/>url_mobile       | text        | Y      | mobile 환경에서 버튼 클릭 시 이동 할 URL                                                       | https://lunasoft.co.kr               |
+| list[].<br/>url_pc           | text        | N      | pc 환경에서 버튼 클릭 시 이동 할 URL                                                           | https://lunasoft.co.kr               |
+| attachment.<br/>coupon        | object      | N      | 메세지 최하단에 쿠폰 추가<br/>**([쿠폰 상세](#쿠폰))** |                             |
+| coupon.<br/>name        | text      | Y      | 쿠폰 이름 형식 |                             |
+| coupon.<br/>description        | text      | Y      | 쿠폰 상세 설명 (FT, FI - 12자 / FW, FL - 18자 제한)  |                             |
+| coupon.<br/>scheme_android   | text        | N      | mobile android 환경에서 버튼 클릭 시 실행 할 application custom scheme                         | "scheme://xxx.xxx"                   |
+| coupon.<br/>scheme_ios       | text        | N      | mobile ios 환경에서 버튼 클릭 시 실행 할 application custom scheme                             | "scheme://xxx.xxx"                   |
+| coupon.<br/>url_mobile       | text        | Y      | mobile 환경에서 버튼 클릭 시 이동 할 URL                                                       | https://lunasoft.co.kr               |
+| coupon.<br/>url_pc           | text        | N      | pc 환경에서 버튼 클릭 시 이동 할 URL                                                           | https://lunasoft.co.kr               |
+| messages[].<br/>header     | text(25)      | Y      | 와이드 아이템 리스트 메시지 타입(FL) 사용시 필수                                               |                                       |
+| messages[].<br/>carousel     | object      | N      | 캐러셀 정보 (아이템 리스트와 더보기 설정하여 발송)                                               |                                       |
+| carousel.<br/>list[]         | array(6)    | Y      | 캐러셀 아이템 리스트 (최소 2개 ~ 최대 6개)                                                     |                                       |
+| list[].<br/>header            | text(20)    | Y      | 캐러셀 아이템 제목                                                                           |                                      |
+| list[].<br/>message           | text(180)   | Y      | 캐러셀 아이템 메시지                                                                         |                                       |
+| list[].<br/>attachment        | object      | Y      | 캐러셀 아이템 이미지, 버튼 정보                                                               |                                       |
+| attachment.<br/>button[]      | array(2)    | N      | 캐러셀 버튼 정보 (최대 2개)                                                                  |                                       |
+| button[].<br/>name           | text(8)    | Y      | 버튼 제목                                                                                  |                                      |
+| button[].<br/>type           | text(2)     | Y      | 버튼 타입                                                                                  | WL(웹링크)<br/>AL(앱링크)              |
+| button[].<br/>url_mobile     | text        | -      | mobile 환경에서 버튼 클릭 시 이동할 URL                                                       | https://lunasoft.co.kr               |
+| button[].<br/>url_pc         | text        | -      | pc 환경에서 버튼 클릭 시 이동할 URL                                                           | https://lunasoft.co.kr               |
+| button[].<br/>scheme_android | text        | -      | mobile android 환경에서 버튼 클릭 시 실행 할<br/>application custom scheme                    | "scheme://xxx.xxx"                   |
+| button[].<br/>scheme_ios     | text        | -      | mobile ios 환경에서 버튼 클릭 시 실행 할<br/>application custom scheme                        | "scheme://xxx.xxx"                   |
+| attachment.<br/>image        | object      | Y      | 캐러셀 이미지 정보                                                                           |                                      |
+| image.<br/>img_url           | text        | Y      | 캐러셀 이미지 API를 통해 업로드된 결과 이미지 URL                                               |                                       |
+| image.<br/>img_link          | text        | N      | 이미지 클릭시 이동할 URL. 미설정 시 카카오톡 내 이미지 뷰어 사용                                  |                                       |
+| carousel.<br/>tail           | object      | N      | 캐러셀 더보기 버튼 정보                                                                       |                                      |
+| tail.<br/>scheme_android     | text        | N      | mobile android 환경에서 버튼 클릭 시 실행 할 application custom scheme                         | "scheme://xxx.xxx"                   |
+| tail.<br/>scheme_ios         | text        | N      | mobile ios 환경에서 버튼 클릭 시 실행 할 application custom scheme                             | "scheme://xxx.xxx"                   |
+| tail.<br/>url_mobile         | text        | Y      | mobile 환경에서 버튼 클릭 시 이동 할 URL                                                       | https://lunasoft.co.kr               |
+| tail.<br/>url_pc             | text        | N      | pc 환경에서 버튼 클릭 시 이동 할 URL                                                           | https://lunasoft.co.kr               |
 
 ##### 버튼 타입 별 속성
 
@@ -216,6 +595,23 @@ API는 아래와 같이 나뉩니다.
 |                             | scheme_ios     | text     | -    | mobile ios 환경에서 버튼 클릭 시 실행 할 application custom scheme   | "scheme://xxx.xxx"        |
 |                             | url_mobile     | text     | -    | mobile 환경에서 버튼 클릭 시 이동 할 URL              | https://lunasoft.co.kr                   |
 |                             | url_pc         | text     | N    | pc 환경에서 버튼 클릭 시 이동 할 URL                  | https://lunasoft.co.kr                   |
+
+
+##### 쿠폰
+
+- 쿠폰형은 메세지 타입이 FT, FI, FW, FL인 경우 사용 가능합니다.
+- title의 경우 5가지 형식으로 제한 됩니다.
+  - "${숫자}원 할인 쿠폰" 숫자는 1이상 99,999,999 이하
+  - "${숫자}% 할인 쿠폰" 숫자는 1이상 100 이하
+  - "배송비 할인 쿠폰"
+  - "${7자 이내} 무료 쿠폰"
+  - "${7자 이내} UP 쿠폰"
+- url_pc, url_mobile, scheme_android, scheme_ios의 경우 필수값이 두가지 케이스로 구분됩니다.
+  - 기본 - url_mobile 필수값 나머지 옵션값
+  - 채널 쿠폰 URL(포멧: alimtalk=coupon://) 사용 - scheme_android 혹은 scheme_ios 둘 중 하나 필수값 나머지 옵션값
+
+
+
 
 #### Response
 
@@ -265,7 +661,7 @@ API는 아래와 같이 나뉩니다.
       "message_id": "message_id_text1",
       "message": "친구톡 발송 (텍스트) - TEST",
       "ad_flag": "Y",
-      "wide": "N",
+      "message_type": 0,
       "attachment": {
         "button": [
           {
@@ -306,7 +702,7 @@ API는 아래와 같이 나뉩니다.
       "message_id": "message_id_text2",
       "message": "친구톡 발송 (텍스트) - TEST",
       "ad_flag": "Y",
-      "wide": "N",
+      "message_type": 0,
       "attachment": {
         "button": [
           {
@@ -323,6 +719,7 @@ API는 아래와 같이 나뉩니다.
 ```
 - 텍스트 타입의 경우 텍스트 메시지 + 링크 버튼(5개) 발송이 가능합니다.
 - 텍스트 문구(messages[].message)는 1,000자로 제한됩니다.
+- messages[].message_type을 `0`으로 설정합니다.
 
 ### 4.2 이미지 타입
 
@@ -338,7 +735,7 @@ API는 아래와 같이 나뉩니다.
       "message_id": "message_id_image1",
       "message": "친구톡 발송 (이미지) - TEST",
       "ad_flag": "Y",
-      "wide": "N",
+      "message_type": 1,
       "attachment": {
         "button": [
           {
@@ -383,7 +780,7 @@ API는 아래와 같이 나뉩니다.
       "message_id": "message_id_image2",
       "message": "친구톡 발송 (이미지) - TEST",
       "ad_flag": "Y",
-      "wide": "N",
+      "message_type": 1,
       "attachment": {
         "button": [
           {
@@ -403,12 +800,12 @@ API는 아래와 같이 나뉩니다.
 }
 ```
 - 기본적으로 텍스트 타입과 동일하나 attachment 필드에 이미지를 추가하여 발송 가능합니다.
-- 반드시 이미지 API를 통해 업로드한 이미지의 URL을 사용해야 합니다.
-- messages[].wide를 'N'으로 설정합니다.
+- 반드시 [업로드 API](#311-친구톡-이미지-업로드-API)를 통해 업로드한 이미지의 URL을 사용해야 합니다.
 - 이미지 타입의 경우 텍스트 메시지 + 링크 버튼(5개) + 이미지 발송이 가능합니다.
 - 텍스트 문구(messages[].message)는 400자로 제한됩니다.
+- messages[].message_type을 `1`로 설정합니다.
 
-### 4.3 WIDE 이미지 타입
+### 4.3 와이드 말풍선 타입
 
 ```json
 {
@@ -422,7 +819,7 @@ API는 아래와 같이 나뉩니다.
       "message_id": "message_id_wideimage1",
       "message": "친구톡 발송 (WIDE 이미지) - TEST",
       "ad_flag": "Y",
-      "wide": "Y",
+      "message_type": 2,
       "attachment": {
         "button": [
           {
@@ -443,7 +840,7 @@ API는 아래와 같이 나뉩니다.
       "message_id": "message_id_wideimage2",
       "message": "친구톡 발송 (WIDE 이미지) - TEST",
       "ad_flag": "Y",
-      "wide": "Y",
+      "message_type": 2,
       "attachment": {
         "button": [
           {
@@ -463,10 +860,205 @@ API는 아래와 같이 나뉩니다.
 }
 ```
 - 기본적으로 텍스트 타입과 동일하나 attachment 필드에 이미지를 추가하여 발송 가능합니다.
-- 반드시 이미지 API를 통해 업로드한 이미지의 URL을 사용해야 합니다.
-- messages[].wide를 'Y'로 설정합니다.
+- 반드시 [업로드 API](#312-친구톡-와이드-이미지-업로드-API)를 통해 업로드한 이미지의 URL을 사용해야 합니다.
 - 이미지 타입의 경우 텍스트 메시지 + 링크 버튼(1개) + 이미지 발송이 가능합니다.
 - 텍스트 문구(messages[].message)는 76자로 제한됩니다.
+- messages[].message_type을 `2`로 설정합니다.
+
+### 4.4 와이드 아이템 리스트 말풍선 타입
+```json
+{
+  "member_id": "lunasoft",
+  "api_key": "abcdefghijklmnopqrstuvwxyz",
+  "cate_cd": 1,
+  "message_group_id": "message_group_id_wideitemlist1",
+  "messages": [
+    {
+      "phone_number": "01012341234",
+      "message_id": "message_id_wideitemlist1",
+      "ad_flag": "Y",
+      "message_type": 3,
+      "header": "친구톡 와이드 아이템 리스트 - 제목",
+      "attachment": {
+        "button": [
+          {
+            "name": "웹링크 버튼 - 1",
+            "type": "WL",
+            "url_pc": "https://lunasoft.co.kr",
+            "url_mobile": "https://lunasoft.co.kr"
+          },
+          {
+            "name": "웹링크 버튼 - 2",
+            "type": "WL",
+            "url_pc": "https://lunasoft.co.kr",
+            "url_mobile": "https://lunasoft.co.kr"
+          }
+        ],
+        "item": {
+            "list": [
+                {
+                    "title": "아이템 타이틀 - 1",
+                    "img_url": "http://mud-kage.kakao.com/dn/bNu9jZ/btqQ7U2ahPx/MY1qouk5tl62n7IkipmcCK/img_l.jpg",
+                    "url_pc": "https://lunasoft.co.kr/",
+                    "url_mobile": "https://lunasoft.co.kr/"
+                },
+                {
+                    "title": "아이템 타이틀 - 2",
+                    "img_url": "http://mud-kage.kakao.com/dn/bNu9jZ/btqQ7U2ahPx/MY1qouk5tl62n7IkipmcCK/img_l.jpg",
+                    "url_pc": "https://lunasoft.co.kr/",
+                    "url_mobile": "https://lunasoft.co.kr/"
+                },
+                {
+                    "title": "아이템 타이틀 - 3",
+                    "img_url": "http://mud-kage.kakao.com/dn/bNu9jZ/btqQ7U2ahPx/MY1qouk5tl62n7IkipmcCK/img_l.jpg",
+                    "url_pc": "https://lunasoft.co.kr/",
+                    "url_mobile": "https://lunasoft.co.kr/"
+                },
+                {
+                    "title": "아이템 타이틀 - 4",
+                    "img_url": "http://mud-kage.kakao.com/dn/bNu9jZ/btqQ7U2ahPx/MY1qouk5tl62n7IkipmcCK/img_l.jpg",
+                    "url_pc": "https://lunasoft.co.kr/",
+                    "url_mobile": "https://lunasoft.co.kr/"
+                }
+            ]
+        }
+      }
+    }
+  ]
+}
+```
+- 하나의 말풍선에 여러 아이템 리스트를 attachment.item.list 필드에 담아서 발송 가능합니다.
+- 반드시 [업로드 API](#313-친구톡-와이드-아이템-리스트-이미지-업로드-API)를 통해 업로드한 이미지의 URL을 사용해야 합니다.
+- attachment.item.list[].title 텍스트 문구는 25자로 제한됩니다.
+- 최대 4개 / 최소 3개의 아이템 리스트가 필요합니다.
+- 버튼은 최대 2개까지 가능하며 가로 정렬되어 발송 됩니다.
+- 광고성 메시지(ad_flag = Y)만 발송 가능합니다.
+- header는 필수값 이며, 25자로 제한됩니다.
+- messages[].message_type을 `3`으로 설정합니다.
+
+### 4.5 캐러셀 말풍선 타입
+```json
+{
+  "member_id": "lunasoft",
+  "api_key": "abcdefghijklmnopqrstuvwxyz",
+  "cate_cd": 1,
+  "message_group_id": "message_group_id_carousel1",
+  "messages": [
+    {
+      "phone_number": "01012341234",
+      "message_id": "message_id_carousel1",
+      "ad_flag": "Y",
+      "message_type": 4,
+      "carousel": {
+        "list": [
+            {
+                "header": "캐러셀 헤더 - 1",
+                "message": "캐러셀 메시지 - 1",
+                "attachment": {
+                    "button": [
+                        {
+                            "name": "웹링크 버튼 - 1",
+                            "type": "WL",
+                            "url_pc": "https://lunasoft.co.kr/",
+                            "url_mobile": "https://lunasoft.co.kr/"
+                        }
+                    ],
+                    "image": {
+                        "img_url": "http://mud-kage.kakao.com/dn/bNu9jZ/btqQ7U2ahPx/MY1qouk5tl62n7IkipmcCK/img_l.jpg",
+                        "img_link": "http://bizmessage.kakao.com"
+                    }
+                }
+            },
+            {
+                "header": "캐러셀 헤더 - 2",
+                "message": "캐러셀 메시지 - 2",
+                "attachment": {
+                    "button": [
+                        {
+                            "name": "웹링크 버튼 - 2",
+                            "type": "WL",
+                            "url_pc": "https://lunasoft.co.kr/",
+                            "url_mobile": "https://lunasoft.co.kr/"
+                        }
+                    ],
+                    "image": {
+                        "img_url": "http://mud-kage.kakao.com/dn/bNu9jZ/btqQ7U2ahPx/MY1qouk5tl62n7IkipmcCK/img_l.jpg",
+                        "img_link": "http://bizmessage.kakao.com"
+                    }
+                }
+            },
+            {
+                "header": "캐러셀 헤더 - 3",
+                "message": "캐러셀 메시지 - 3",
+                "attachment": {
+                    "button": [
+                        {
+                            "name": "웹링크 버튼 - 3",
+                            "type": "WL",
+                            "url_pc": "https://lunasoft.co.kr/",
+                            "url_mobile": "https://lunasoft.co.kr/"
+                        }
+                    ],
+                    "image": {
+                        "img_url": "http://mud-kage.kakao.com/dn/bNu9jZ/btqQ7U2ahPx/MY1qouk5tl62n7IkipmcCK/img_l.jpg",
+                        "img_link": "http://bizmessage.kakao.com"
+                    }
+                }
+            },
+            {
+                "header": "캐러셀 헤더 - 4",
+                "message": "캐러셀 메시지 - 4",
+                "attachment": {
+                    "button": [
+                        {
+                            "name": "웹링크 버튼 - 4",
+                            "type": "WL",
+                            "url_pc": "https://lunasoft.co.kr/",
+                            "url_mobile": "https://lunasoft.co.kr/"
+                        }
+                    ],
+                    "image": {
+                        "img_url": "http://mud-kage.kakao.com/dn/bNu9jZ/btqQ7U2ahPx/MY1qouk5tl62n7IkipmcCK/img_l.jpg",
+                        "img_link": "http://bizmessage.kakao.com"
+                    }
+                }
+            },
+            {
+                "header": "캐러셀 헤더 - 5",
+                "message": "캐러셀 메시지 - 5",
+                "attachment": {
+                    "button": [
+                        {
+                            "name": "웹링크 버튼 - 5",
+                            "type": "WL",
+                            "url_pc": "https://lunasoft.co.kr/",
+                            "url_mobile": "https://lunasoft.co.kr/"
+                        }
+                    ],
+                    "image": {
+                        "img_url": "http://mud-kage.kakao.com/dn/bNu9jZ/btqQ7U2ahPx/MY1qouk5tl62n7IkipmcCK/img_l.jpg",
+                        "img_link": "http://bizmessage.kakao.com"
+                    }
+                }
+            }
+        ],
+        "tail": {
+            "url_pc": "https://lunasoft.co.kr/",
+            "url_mobile": "https://lunasoft.co.kr/"
+        }
+      }
+    }
+  ]
+}
+```
+- 여러 말풍선을 carousel 필드에 list 로 추가 할 수 있고, 더보기 버튼(tail)을 지정하여 발송 가능합니다.
+- 반드시 [업로드 API](#314-친구톡-캐러셀-이미지-업로드-API)를 통해 업로드한 이미지의 URL을 사용해야 합니다.
+- 제목(carousel.list[].header)은 20자, 텍스트 문구(carousel.list[].message)는 180자로 제한됩니다.
+- 캐러샐 하나 당 버튼은 최대 2개까지 가능하며 가로 정렬되어 발송 됩니다.
+- 최대 6개 / 최소 2개의 carousel 리스트가 필요합니다.
+- 광고성 메시지(ad_flag = Y)만 발송 가능합니다.
+- messages[].message_type을 `4`로 설정합니다.
+
 
 ## 5. WebHook 
 
@@ -529,6 +1121,9 @@ API는 아래와 같이 나뉩니다.
 | 3046    | 닫힘 상태의 카카오톡 채널                                                                                                          |
 | 3049    | 내부 시스템 오류로 메시지 전송 실패 (카카오 시스템)                                                                                    |
 | 3050    | 메시지를 전송할 수 없음<br/>- 카카오톡을 사용하지 않는 사용자<br/>- 친구톡의 경우 친구가 아닌 경우<br/>- 카카오톡을 당일 설치 했거나 일주일 동안 사용을 안한 유저의 경우<br/>- 구버전의 카카오톡을 사용하는 경우 |
+| 3052    | 와이드 아이템 리스트 개수 최소, 최대 개수 불일치<br/>MessageInvalidWideItemListLengthException                  |
+| 3053    | 캐러셀 아이템 리스트 개수 최소, 최대 개수 불일치<br/>InvalidateCarouselItemMinMaxException                                                                                   |
+| 3057    | 캐러셀 아이템 메시지 길이 OVER<br/>CarouselMessageLengthOverLimitException                                                                                   |
 | 3063    | btn_url오류 (http:// 또는 https:// 입력하지 않음)                                                                                 |
 | 4100    | 메시지에 포함된 이미지를 전송할 수 없음 (이미지주소 또는 링크가 올바르지 않거나 이미지가 규격에 맞지 않음)                                     |
 | 9101    | HttpRequestException 발생 시(SSL 문제로 인해 코드 추가) (루나 시스템)                                                                |
