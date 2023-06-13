@@ -554,7 +554,7 @@ API는 아래와 같이 나뉩니다.
 | list[].<br/>url_mobile       | text        | Y      | mobile 환경에서 버튼 클릭 시 이동 할 URL                                                       | https://lunasoft.co.kr               |
 | list[].<br/>url_pc           | text        | N      | pc 환경에서 버튼 클릭 시 이동 할 URL                                                           | https://lunasoft.co.kr               |
 | attachment.<br/>coupon        | object      | N      | 메세지 최하단에 쿠폰 추가<br/>**([쿠폰 상세](#쿠폰))** |                             |
-| coupon.<br/>name        | text      | Y      | 쿠폰 이름 형식 |                             |
+| coupon.<br/>title        | text      | Y      | 쿠폰 이름 형식 |                             |
 | coupon.<br/>description        | text      | Y      | 쿠폰 상세 설명 (FT, FI - 12자 / FW, FL - 18자 제한)  |                             |
 | coupon.<br/>scheme_android   | text        | N      | mobile android 환경에서 버튼 클릭 시 실행 할 application custom scheme                         | "scheme://xxx.xxx"                   |
 | coupon.<br/>scheme_ios       | text        | N      | mobile ios 환경에서 버튼 클릭 시 실행 할 application custom scheme                             | "scheme://xxx.xxx"                   |
