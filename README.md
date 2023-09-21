@@ -10,6 +10,7 @@
 
 | 일시       | 변경 내역                                                                                                                                                                                                                |
 | ---------- | -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 2023.9.21  | `cate_cd` 삭제 |
 | 2023.3.30  | `쿠폰 강조 버튼` 추가 **([쿠폰 강조 버튼 상세](#쿠폰))** |
 | 2023.3.30  | `발송 API` 타입 추가<br/> - 와이드 아이템 리스트 말풍선 타입(messages[].attachment.item)<br/> - 캐러셀 말풍선 타입(messages[].carousel)<br/>`발송 API` 수정<br/> - Endpoint : /api/FriendTalk -> /api/v3/FriendTalk<br/>(기존 메시지 타입(텍스트, 이미지, 와이드 말풍선)의 경우 변경 전 Endpoint로도 발송 가능)<br/> - 와이드 이미지 사용 여부(messages[].wide) 삭제<br/> - 메시지 타입(messages[].message_type) 추가<br/> 0: 텍스트 타입, 1: 이미지 타입, 2: 와이드 말풍선 타입, 3: 와이드 아이템 리스트 말풍선 타입, 4: 캐러셀 말풍선 타입                                                                                |
 | 2023.3.30  | `업로드 API` 추가<br/> - 친구톡 와이드 아이템 리스트 이미지 업로드 API<br/>(Endpoint : /api/v2/Upload/WideItemList)<br/> - 친구톡 캐러셀 이미지 업로드 API<br/>(Endpoint : /api/v2/Upload/Carousel)                                                                                  |
@@ -440,7 +441,6 @@ API는 아래와 같이 나뉩니다.
 {
   "member_id": "text",
   "api_key": "text",
-  "cate_cd": number,
   "message_group_id": "text",
   "messages": [
     {
@@ -525,7 +525,6 @@ API는 아래와 같이 나뉩니다.
 | ---------------------------- | ----------- | ------ | ------------------------------------------------------------------------------------------ | ------------------------------------ |
 | member_id                    | text(50)    | Y      | 고객 ID (파트너 ID)                                                                         | lunasoft                             |
 | api_key                      | text(50)    | Y      | 발급받은 API 키                                                                             |                                      |
-| cate_cd                      | number      | N      | 카테고리 코드 (0: 일반 친구톡, 1: 데이타라이즈 Divers, 2: 데이타라이즈 스마트메시지)<br/>기본값 0        | 0                                    |
 | message_group_id             | text(50)    | N      | 메세지에 대한 업체별 그룹 아이디 (*** `WebHook` 에서 전달 받음)                                  | message_group_id_1                    |
 | messages[]                   | array(1000) | Y      | 메시지 목록. 최대 1,000개                                                                    |                                      |
 | messages[].<br/>phone_number | text(16)    | -      | 사용자 전화번호 (*** phone_number 혹은 app_user_id 둘 중 하나는 반드시 있어야 하며, phone_number와 app_user_id의 정보가 동시에 요청된 경우 phone_number로만 발송) | 01012345678 |
@@ -653,7 +652,6 @@ API는 아래와 같이 나뉩니다.
 {
   "member_id": "lunasoft",
   "api_key": "abcdefghijklmnopqrstuvwxyz",
-  "cate_cd": 1,
   "message_group_id": "message_group_id_text1",
   "messages": [
     {
@@ -727,7 +725,6 @@ API는 아래와 같이 나뉩니다.
 {
   "member_id": "lunasoft",
   "api_key": "abcdefghijklmnopqrstuvwxyz",
-  "cate_cd": 1,
   "message_group_id": "message_group_id_image1",
   "messages": [
     {
@@ -811,7 +808,6 @@ API는 아래와 같이 나뉩니다.
 {
   "member_id": "lunasoft",
   "api_key": "abcdefghijklmnopqrstuvwxyz",
-  "cate_cd": 1,
   "message_group_id": "message_group_id_wideimage1",
   "messages": [
     {
@@ -870,7 +866,6 @@ API는 아래와 같이 나뉩니다.
 {
   "member_id": "lunasoft",
   "api_key": "abcdefghijklmnopqrstuvwxyz",
-  "cate_cd": 1,
   "message_group_id": "message_group_id_wideitemlist1",
   "messages": [
     {
@@ -941,7 +936,6 @@ API는 아래와 같이 나뉩니다.
 {
   "member_id": "lunasoft",
   "api_key": "abcdefghijklmnopqrstuvwxyz",
-  "cate_cd": 1,
   "message_group_id": "message_group_id_carousel1",
   "messages": [
     {
