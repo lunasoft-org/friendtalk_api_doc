@@ -561,7 +561,7 @@ API는 아래와 같이 나뉩니다.
 | coupon.<br/>url_pc           | text        | N      | pc 환경에서 버튼 클릭 시 이동 할 URL                                                           | https://lunasoft.co.kr               |
 | messages[].<br/>header     | text(25)      | Y      | 와이드 아이템 리스트 메시지 타입(FL) 사용시 필수                                               |                                       |
 | messages[].<br/>carousel     | object      | N      | 캐러셀 정보 (아이템 리스트와 더보기 설정하여 발송)                                               |                                       |
-| carousel.<br/>list[]         | array(6)    | Y      | 캐러셀 아이템 리스트 (최소 2개 ~ 최대 6개)                                                     |                                       |
+| carousel.<br/>list[]         | array(6)    | Y      | 캐러셀 아이템 리스트 (최소 2개 ~ 최대 10개)                                                     |                                       |
 | list[].<br/>header            | text(20)    | Y      | 캐러셀 아이템 제목                                                                           |                                      |
 | list[].<br/>message           | text(180)   | Y      | 캐러셀 아이템 메시지                                                                         |                                       |
 | list[].<br/>attachment        | object      | Y      | 캐러셀 아이템 이미지, 버튼 정보                                                               |                                       |
