@@ -10,6 +10,7 @@
 
 | 일시       | 변경 내역                                                                                                                                                                                                                |
 | ---------- | -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 2025.12.01  | 브랜드 메시지 호환 |
 | 2023.9.21  | `cate_cd` 삭제 |
 | 2023.3.30  | `쿠폰 강조 버튼` 추가 **([쿠폰 강조 버튼 상세](#쿠폰))** |
 | 2023.3.30  | `발송 API` 타입 추가<br/> - 와이드 아이템 리스트 말풍선 타입(messages[].attachment.item)<br/> - 캐러셀 말풍선 타입(messages[].carousel)<br/>`발송 API` 수정<br/> - Endpoint : /api/FriendTalk -> /api/v3/FriendTalk<br/>(기존 메시지 타입(텍스트, 이미지, 와이드 말풍선)의 경우 변경 전 Endpoint로도 발송 가능)<br/> - 와이드 이미지 사용 여부(messages[].wide) 삭제<br/> - 메시지 타입(messages[].message_type) 추가<br/> 0: 텍스트 타입, 1: 이미지 타입, 2: 와이드 말풍선 타입, 3: 와이드 아이템 리스트 말풍선 타입, 4: 캐러셀 말풍선 타입                                                                                |
@@ -449,7 +450,7 @@ API는 아래와 같이 나뉩니다.
       "message_id": "text",
       "message": "text",
       "ad_flag": "text",
-      "message_type": number,      
+      "message_type": number,
       "attachment": {
         "button": [
           {
@@ -530,56 +531,56 @@ API는 아래와 같이 나뉩니다.
 | messages[].<br/>phone_number | text(16)    | -      | 사용자 전화번호 (*** phone_number 혹은 app_user_id 둘 중 하나는 반드시 있어야 하며, phone_number와 app_user_id의 정보가 동시에 요청된 경우 phone_number로만 발송) | 01012345678 |
 | messages[].<br/>app_user_id  | text        | -      | 앱 유저 아이디                                                                              | 12345                                |
 | messages[].<br/>message_id   | text(50)    | -      | 메세지에 대한 업체별 유니크 아이디 (*** `WebHook` 에서 필수값)                                   | message_id_1                         |
-| messages[].<br/>message      | text(1000)  | Y      | 사용자에게 전달될 메시지<br/>(공백 포함 1,000자 제한)                                           |                                      |
+| messages[].<br/>message      | text(1000)  | Y      | 사용자에게 전달될 메시지<br/>(공백 포함 1,000자 제한) <br> 텍스트, 이미지 줄바꿈 최대 99 <br> 와이드 이미지, 비디오 최대 줄바꿈 5                                           |                                      |
 | messages[].<br/>ad_flag      | text(1)     | N      | 광고성 메시지 표기 여부 (Y, N)<br/>기본값 Y                                                   | Y                                    |
 | messages[].<br/>message_type  | number     | Y      | 메시지 타입 (0: 텍스트 타입, 1: 이미지 타입, 2: 와이드 말풍선 타입, 3: 와이드 아이템 리스트 말풍선 타입, 4: 캐러셀 말풍선 타입) | 0                          |
 | messages[].<br/>attachment   | object      | N      | 메시지 첨부 내용 (버튼 + 이미지)                                                              |                                      |
 | attachment.<br/>button[]     | array(5)    | N      | 버튼 목록                                                                                  |                                      |
-| button[].<br/>name           | text(28)    | Y      | 버튼 제목                                                                                  |                                      |
+| button[].<br/>name           | text    | Y      | 버튼 제목 <br/> 텍스트, 이미지 최대 14글자<br> 그 외 최대 8글자                                  |                                      |
 | button[].<br/>type           | text(2)     | Y      | 버튼 타입<br/>**([버튼 타입 별 속성](#버튼-타입-별-속성))**                                                                                  | WL(웹링크)<br/>AL(앱링크)              |
-| button[].<br/>url_mobile     | text        | -      | mobile 환경에서 버튼 클릭 시 이동할 URL                                                       | https://lunasoft.co.kr               |
-| button[].<br/>url_pc         | text        | -      | pc 환경에서 버튼 클릭 시 이동할 URL                                                           | https://lunasoft.co.kr               |
-| button[].<br/>scheme_android | text        | -      | mobile android 환경에서 버튼 클릭 시 실행 할<br/>application custom scheme                    | "scheme://xxx.xxx"                   |
-| button[].<br/>scheme_ios     | text        | -      | mobile ios 환경에서 버튼 클릭 시 실행 할<br/>application custom scheme                        | "scheme://xxx.xxx"                   |
+| button[].<br/>url_mobile     | text(500)        | -      | mobile 환경에서 버튼 클릭 시 이동할 URL                                                       | https://lunasoft.co.kr               |
+| button[].<br/>url_pc         | text(500)        | -      | pc 환경에서 버튼 클릭 시 이동할 URL                                                           | https://lunasoft.co.kr               |
+| button[].<br/>scheme_android | text(500)        | -      | mobile android 환경에서 버튼 클릭 시 실행 할<br/>application custom scheme                    | "scheme://xxx.xxx"                   |
+| button[].<br/>scheme_ios     | text(500)        | -      | mobile ios 환경에서 버튼 클릭 시 실행 할<br/>application custom scheme                        | "scheme://xxx.xxx"                   |
 | attachment.<br/>image        | object      | N      | 노출할 이미지 정보 (*** 와이드 이미지 타입의 경우 [텍스트 메시지(76자 제한) + 링크 버튼(1개) + 이미지] 발송 가능) |                             |
 | image.<br/>img_url           | text        | Y      | 이미지 API를 통해 업로드된 결과 이미지 URL                                                     |                                       |
-| image.<br/>img_link          | text        | N      | 이미지 클릭시 이동할 URL. 미설정 시 카카오톡 내 이미지 뷰어 사용                                   |                                       |
+| image.<br/>img_link          | text(500)        | N      | 이미지 클릭시 이동할 URL. 미설정 시 카카오톡 내 이미지 뷰어 사용                                   |                                       |
 | attachment.<br/>item         | object      | N      | 와이드 아이템 리스트 정보 (아이템 리스트 설정하여 발송)                                          |                                       |
 | item.<br/>list[]             | array(4)    | Y      | 와이드 아이템 리스트 (최소 3개 ~ 최대 4개)                                                     |                                       |
 | list[].<br/>title             | text(25)    | Y      | 와이드 아이템 제목                                                                           |                                      |
 | list[].<br/>img_url           | text        | Y      | 와이드 아이템 리스트 이미지 API를 통해 업로드된 결과 이미지 URL                                   |                                       |
-| list[].<br/>scheme_android   | text        | N      | mobile android 환경에서 버튼 클릭 시 실행 할 application custom scheme                         | "scheme://xxx.xxx"                   |
-| list[].<br/>scheme_ios       | text        | N      | mobile ios 환경에서 버튼 클릭 시 실행 할 application custom scheme                             | "scheme://xxx.xxx"                   |
-| list[].<br/>url_mobile       | text        | Y      | mobile 환경에서 버튼 클릭 시 이동 할 URL                                                       | https://lunasoft.co.kr               |
-| list[].<br/>url_pc           | text        | N      | pc 환경에서 버튼 클릭 시 이동 할 URL                                                           | https://lunasoft.co.kr               |
+| list[].<br/>scheme_android   | text(500)        | N      | mobile android 환경에서 버튼 클릭 시 실행 할 application custom scheme                         | "scheme://xxx.xxx"                   |
+| list[].<br/>scheme_ios       | text(500)        | N      | mobile ios 환경에서 버튼 클릭 시 실행 할 application custom scheme                             | "scheme://xxx.xxx"                   |
+| list[].<br/>url_mobile       | text(500)        | Y      | mobile 환경에서 버튼 클릭 시 이동 할 URL                                                       | https://lunasoft.co.kr               |
+| list[].<br/>url_pc           | text(500)        | N      | pc 환경에서 버튼 클릭 시 이동 할 URL                                                           | https://lunasoft.co.kr               |
 | attachment.<br/>coupon        | object      | N      | 메세지 최하단에 쿠폰 추가<br/>**([쿠폰 상세](#쿠폰))** |                             |
 | coupon.<br/>title        | text      | Y      | 쿠폰 이름 형식 |                             |
-| coupon.<br/>description        | text      | Y      | 쿠폰 상세 설명 (FT, FI - 12자 / FW, FL - 18자 제한)  |                             |
-| coupon.<br/>scheme_android   | text        | N      | mobile android 환경에서 버튼 클릭 시 실행 할 application custom scheme                         | "scheme://xxx.xxx"                   |
-| coupon.<br/>scheme_ios       | text        | N      | mobile ios 환경에서 버튼 클릭 시 실행 할 application custom scheme                             | "scheme://xxx.xxx"                   |
-| coupon.<br/>url_mobile       | text        | Y      | mobile 환경에서 버튼 클릭 시 이동 할 URL                                                       | https://lunasoft.co.kr               |
-| coupon.<br/>url_pc           | text        | N      | pc 환경에서 버튼 클릭 시 이동 할 URL                                                           | https://lunasoft.co.kr               |
-| messages[].<br/>header     | text(25)      | Y      | 와이드 아이템 리스트 메시지 타입(FL) 사용시 필수                                               |                                       |
+| coupon.<br/>description        | text      | Y      | 쿠폰 상세 설명 <br> FT, FI - 12자 / FW, FL - 18자 제한 <br> 줄바꿈 불가  |                             |
+| coupon.<br/>scheme_android   | text(500)        | N      | mobile android 환경에서 버튼 클릭 시 실행 할 application custom scheme                         | "scheme://xxx.xxx"                   |
+| coupon.<br/>scheme_ios       | text(500)        | N      | mobile ios 환경에서 버튼 클릭 시 실행 할 application custom scheme                             | "scheme://xxx.xxx"                   |
+| coupon.<br/>url_mobile       | text(500)        | Y      | mobile 환경에서 버튼 클릭 시 이동 할 URL                                                       | https://lunasoft.co.kr               |
+| coupon.<br/>url_pc           | text(500)        | N      | pc 환경에서 버튼 클릭 시 이동 할 URL                                                           | https://lunasoft.co.kr               |
+| messages[].<br/>header     | text(20)      | Y      | 와이드 아이템 리스트 메시지 타입(FL) 사용시 필수 (줄바꿈 불가)                                              |                                       |
 | messages[].<br/>carousel     | object      | N      | 캐러셀 정보 (아이템 리스트와 더보기 설정하여 발송)                                               |                                       |
-| carousel.<br/>list[]         | array(6)    | Y      | 캐러셀 아이템 리스트 (최소 2개 ~ 최대 10개)                                                     |                                       |
+| carousel.<br/>list[]         | array(6)    | Y      | 캐러셀 아이템 리스트 (최소 2개 ~ 최대 6개)                                                     |                                       |
 | list[].<br/>header            | text(20)    | Y      | 캐러셀 아이템 제목                                                                           |                                      |
 | list[].<br/>message           | text(180)   | Y      | 캐러셀 아이템 메시지                                                                         |                                       |
 | list[].<br/>attachment        | object      | Y      | 캐러셀 아이템 이미지, 버튼 정보                                                               |                                       |
 | attachment.<br/>button[]      | array(2)    | N      | 캐러셀 버튼 정보 (최대 2개)                                                                  |                                       |
 | button[].<br/>name           | text(8)    | Y      | 버튼 제목                                                                                  |                                      |
 | button[].<br/>type           | text(2)     | Y      | 버튼 타입                                                                                  | WL(웹링크)<br/>AL(앱링크)              |
-| button[].<br/>url_mobile     | text        | -      | mobile 환경에서 버튼 클릭 시 이동할 URL                                                       | https://lunasoft.co.kr               |
-| button[].<br/>url_pc         | text        | -      | pc 환경에서 버튼 클릭 시 이동할 URL                                                           | https://lunasoft.co.kr               |
-| button[].<br/>scheme_android | text        | -      | mobile android 환경에서 버튼 클릭 시 실행 할<br/>application custom scheme                    | "scheme://xxx.xxx"                   |
-| button[].<br/>scheme_ios     | text        | -      | mobile ios 환경에서 버튼 클릭 시 실행 할<br/>application custom scheme                        | "scheme://xxx.xxx"                   |
+| button[].<br/>url_mobile     | text(500)        | -      | mobile 환경에서 버튼 클릭 시 이동할 URL                                                       | https://lunasoft.co.kr               |
+| button[].<br/>url_pc         | text(500)        | -      | pc 환경에서 버튼 클릭 시 이동할 URL                                                           | https://lunasoft.co.kr               |
+| button[].<br/>scheme_android | text(500)        | -      | mobile android 환경에서 버튼 클릭 시 실행 할<br/>application custom scheme                    | "scheme://xxx.xxx"                   |
+| button[].<br/>scheme_ios     | text(500)        | -      | mobile ios 환경에서 버튼 클릭 시 실행 할<br/>application custom scheme                        | "scheme://xxx.xxx"                   |
 | attachment.<br/>image        | object      | Y      | 캐러셀 이미지 정보                                                                           |                                      |
 | image.<br/>img_url           | text        | Y      | 캐러셀 이미지 API를 통해 업로드된 결과 이미지 URL                                               |                                       |
-| image.<br/>img_link          | text        | N      | 이미지 클릭시 이동할 URL. 미설정 시 카카오톡 내 이미지 뷰어 사용                                  |                                       |
+| image.<br/>img_link          | text(500)        | N      | 이미지 클릭시 이동할 URL. 미설정 시 카카오톡 내 이미지 뷰어 사용                                  |                                       |
 | carousel.<br/>tail           | object      | N      | 캐러셀 더보기 버튼 정보                                                                       |                                      |
-| tail.<br/>scheme_android     | text        | N      | mobile android 환경에서 버튼 클릭 시 실행 할 application custom scheme                         | "scheme://xxx.xxx"                   |
-| tail.<br/>scheme_ios         | text        | N      | mobile ios 환경에서 버튼 클릭 시 실행 할 application custom scheme                             | "scheme://xxx.xxx"                   |
-| tail.<br/>url_mobile         | text        | Y      | mobile 환경에서 버튼 클릭 시 이동 할 URL                                                       | https://lunasoft.co.kr               |
-| tail.<br/>url_pc             | text        | N      | pc 환경에서 버튼 클릭 시 이동 할 URL                                                           | https://lunasoft.co.kr               |
+| tail.<br/>scheme_android     | text(text)        | N      | mobile android 환경에서 버튼 클릭 시 실행 할 application custom scheme                         | "scheme://xxx.xxx"                   |
+| tail.<br/>scheme_ios         | text(text)        | N      | mobile ios 환경에서 버튼 클릭 시 실행 할 application custom scheme                             | "scheme://xxx.xxx"                   |
+| tail.<br/>url_mobile         | text(text)        | Y      | mobile 환경에서 버튼 클릭 시 이동 할 URL                                                       | https://lunasoft.co.kr               |
+| tail.<br/>url_pc             | text(text)        | N      | pc 환경에서 버튼 클릭 시 이동 할 URL                                                           | https://lunasoft.co.kr               |
 
 ##### 버튼 타입 별 속성
 
